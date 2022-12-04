@@ -4,8 +4,8 @@ import { fetch, immuneToBool, yesNoToBool } from "../utils";
 
 const BASE_URL = "https://oldschool.runescape.wiki";
 const RANDOM_PAGE = `${BASE_URL}/w/Special:Random/main`;
-const ME_PAGE = "https://oldschool.runescape.wiki/w/Me";
-const FIRE_ELEMENTAL_PAGE = "https://oldschool.runescape.wiki/w/Fire_elemental";
+// const ME_PAGE = "https://oldschool.runescape.wiki/w/Me";
+// const FIRE_ELEMENTAL_PAGE = "https://oldschool.runescape.wiki/w/Fire_elemental";
 
 const qs = <T extends Element>(dom: JSDOM, selector: string) =>
   dom.window.document.querySelector<T>(selector);
