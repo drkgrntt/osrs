@@ -1,7 +1,7 @@
 import "dotenv-safe/config";
 import express from "express";
 import { scrape } from "./controllers/scrape";
-import { scrape as scrapeWiki } from "./lib/scrape";
+import { continuousScrape } from "./lib/scrape";
 
 const main = async () => {
   const app = express();
@@ -16,7 +16,7 @@ const main = async () => {
 try {
   main();
 
-  setInterval(scrapeWiki, 15000);
+  continuousScrape();
 } catch (error) {
   console.error(error);
 }

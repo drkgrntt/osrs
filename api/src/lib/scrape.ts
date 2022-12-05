@@ -13,6 +13,10 @@ const qs = <T extends Element>(dom: JSDOM, selector: string) =>
 const qsa = <T extends Element>(dom: JSDOM, selector: string) =>
   dom.window.document.querySelectorAll<T>(selector);
 
+export const continuousScrape = () => {
+  setTimeout(scrape, Math.random() * 60 * 1000);
+};
+
 export const scrape = async () => {
   const result = await (await fetch(RANDOM_PAGE)).text();
   // const result = await (await fetch(FIRE_ELEMENTAL_PAGE)).text();
