@@ -5,6 +5,7 @@ import { fetch, immuneToBool, yesNoToBool } from "../utils";
 const BASE_URL = "https://oldschool.runescape.wiki";
 const RANDOM_PAGE = `${BASE_URL}/w/Special:Random/main`;
 // const ME_PAGE = "https://oldschool.runescape.wiki/w/Me";
+// const MAN_PAGE = "https://oldschool.runescape.wiki/w/Man";
 // const FIRE_ELEMENTAL_PAGE = "https://oldschool.runescape.wiki/w/Fire_elemental";
 
 const qs = <T extends Element>(dom: JSDOM, selector: string) =>
@@ -22,7 +23,7 @@ export const continuousScrape = () => {
 
 export const scrape = async () => {
   const result = await (await fetch(RANDOM_PAGE)).text();
-  // const result = await (await fetch(FIRE_ELEMENTAL_PAGE)).text();
+  // const result = await (await fetch(MAN_PAGE)).text();
   const dom = new JSDOM(result);
 
   // Title
@@ -209,6 +210,39 @@ export const scrape = async () => {
       });
     }
   });
+
+  const locationsElem = qs(dom, "#Locations");
+  if (locationsElem) {
+    const table = locationsElem.parentElement?.nextElementSibling;
+    const headings = Array.from(table?.querySelectorAll("th") ?? []).map((th) =>
+      th?.textContent?.trim().toLowerCase()
+    );
+    record.locations = Array.from(table?.querySelectorAll("tbody tr") ?? [])
+      .map((tr) => {
+        const values = Array.from(tr?.querySelectorAll("td") ?? []).map(
+          (td) => {
+            const anchor = td.querySelector<HTMLAnchorElement>("a");
+            if (anchor && anchor.querySelector("img")) {
+              return anchor.title.toLowerCase() === "members";
+            }
+            return td?.textContent;
+          }
+        );
+        if (!values.length) return;
+        return headings.reduce<Record<string, any>>((curr, heading, i) => {
+          if (!heading || heading === "map") return curr;
+
+          if (heading === "spawns") {
+            curr[heading] = parseFloat(values[i] as string);
+          } else {
+            curr[heading] = values[i];
+          }
+
+          return curr;
+        }, {});
+      })
+      .filter(Boolean);
+  }
 
   await write("item", [record], ["slug"]);
 
