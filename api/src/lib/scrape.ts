@@ -250,8 +250,7 @@ export const scrape = async () => {
     console.log("Scraped: ", title);
 
     return record;
-  } catch (err) {
-    console.log({ err });
-    return {};
+  } catch (error) {
+    return { error };
   }
 };
