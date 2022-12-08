@@ -1,4 +1,4 @@
-import { Filter, Document, MongoClient, MongoClientOptions } from "mongodb";
+import { Filter, Document, MongoClient, MongoClientOptions, Db } from "mongodb";
 
 export const read = async (collection: string, filters: Filter<Document>[]) => {
   const client = new MongoClient(process.env.MONGO_URI, {
@@ -24,7 +24,7 @@ export const read = async (collection: string, filters: Filter<Document>[]) => {
 
 export const write = async (
   collection: string,
-  items: Record<string, any>[],
+  items: Record<string, Document>[],
   filterKeys: string[]
 ) => {
   if (!items.length) return;
@@ -53,7 +53,28 @@ export const write = async (
       };
     });
 
-    await db.collection(collection).bulkWrite(upserts as any);
+    await db.collection(collection).bulkWrite(upserts);
+  } finally {
+    await client.close();
+  }
+};
+
+export const query = async (
+  cb: <Response extends unknown>(db: Db) => Promise<Response>
+) => {
+  const client = new MongoClient(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    maxPoolSize: 3,
+  } as MongoClientOptions);
+
+  try {
+    await client.connect();
+    const db = await client.db();
+
+    const response = await cb(db);
+
+    return response;
   } finally {
     await client.close();
   }
