@@ -244,6 +244,11 @@ export const scrape = async () => {
             record[type] = `${BASE_URL}${imgSrc}`;
             break;
 
+          // Log skip items
+          case "advanced data":
+          case title?.toLowerCase():
+            break;
+
           // Default
           default:
             console.log("Missed info type:", type);
