@@ -151,6 +151,18 @@ export const scrape = async () => {
             if (!value) break;
             record.objectId = extractFloat(value);
             break;
+          case "item id":
+            if (!value) break;
+            record.itemId = extractFloat(value);
+            break;
+          case "level required":
+            if (!value) break;
+            record.levelRequired = extractFloat(value);
+            break;
+          case "agility xp":
+            if (!value) break;
+            record.agilityXp = extractFloat(value);
+            break;
 
           // Exact match number values
           case "participants":
@@ -201,6 +213,9 @@ export const scrape = async () => {
             break;
           case "unlock hint":
             record.unlockHint = value;
+            break;
+          case "agility course":
+            record.agilityCourse = value;
             break;
 
           // Comma-separated array value
