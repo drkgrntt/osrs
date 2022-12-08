@@ -170,6 +170,7 @@ export const scrape = async () => {
           case "weight":
           case "level":
           case "experience":
+          case "floors":
           case "exchange":
             if (!value) break;
             record[type] = extractFloat(value);
@@ -195,7 +196,6 @@ export const scrape = async () => {
           case "location":
           case "tutorial":
           case "quest":
-          case "music":
           case "room":
           case "destroy":
             record[type] = value;
@@ -217,10 +217,15 @@ export const scrape = async () => {
           case "agility course":
             record.agilityCourse = value;
             break;
+          case "quest series":
+            record.questSeries = value;
+            break;
 
           // Comma-separated array value
           case "skills":
           case "options":
+          case "music":
+          case "inhabitants":
           case "hotspot":
           case "shop":
             record[type] = value?.split(",").map((v) => v.trim());
@@ -246,6 +251,7 @@ export const scrape = async () => {
 
           // Log skip items
           case "advanced data":
+          case "map":
           case title?.toLowerCase():
             break;
 
