@@ -143,6 +143,14 @@ export const scrape = async () => {
             if (!value) break;
             record.dailyVolume = extractFloat(value);
             break;
+          case "npc id":
+            if (!value) break;
+            record.npcId = extractFloat(value);
+            break;
+          case "object id":
+            if (!value) break;
+            record.objectId = extractFloat(value);
+            break;
 
           // Exact match number values
           case "participants":
@@ -174,6 +182,7 @@ export const scrape = async () => {
           case "composer":
           case "location":
           case "tutorial":
+          case "quest":
           case "music":
           case "room":
           case "destroy":
