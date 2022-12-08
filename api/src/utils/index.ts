@@ -20,3 +20,9 @@ export const immuneToBool = (yesNo?: string | null) => {
   if (yesNo.toLowerCase() === "immune") return true;
   return undefined;
 };
+
+export const extractFloat = (value?: string | null) => {
+  if (!value) return undefined;
+  const noCommas = value.replace(/,/g, "");
+  return parseFloat(noCommas);
+};

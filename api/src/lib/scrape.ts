@@ -1,6 +1,6 @@
 import { JSDOM } from "jsdom";
 import { write } from "../database";
-import { fetch, immuneToBool, yesNoToBool } from "../utils";
+import { extractFloat, fetch, immuneToBool, yesNoToBool } from "../utils";
 
 const BASE_URL = "https://oldschool.runescape.wiki";
 const RANDOM_PAGE = `${BASE_URL}/w/Special:Random/main`;
@@ -18,7 +18,7 @@ export const continuousScrape = () => {
   setTimeout(async () => {
     await scrape();
     continuousScrape();
-  }, Math.random() * 60 * 1000);
+  }, Math.random() * 60 * 1000 + 200);
 };
 
 export const scrape = async () => {
@@ -26,6 +26,8 @@ export const scrape = async () => {
     const result = await (await fetch(RANDOM_PAGE)).text();
     // const result = await (await fetch(MAN_PAGE)).text();
     const dom = new JSDOM(result);
+
+    const scrapedOn = new Date();
 
     // Title
     const title = qs(dom, "#firstHeading")?.innerHTML;
@@ -61,6 +63,7 @@ export const scrape = async () => {
       .join("\n");
 
     const record: Record<string, any> = {
+      scrapedOn,
       slug,
       title,
       mainImage,
@@ -68,6 +71,15 @@ export const scrape = async () => {
       textBoxImage,
     };
 
+    // References
+    if (description.toLowerCase().includes("may refer to:")) {
+      const items = content?.querySelectorAll("ul li a") ?? [];
+      record.references = [
+        ...new Set(Array.from(items).map((li) => li.textContent)),
+      ];
+    }
+
+    // Infobox values
     const trs = qsa(dom, ".mw-parser-output .infobox tr");
     trs.forEach((tr) => {
       const type = tr.querySelector("th")?.textContent?.toLowerCase();
@@ -75,45 +87,122 @@ export const scrape = async () => {
 
       if (type) {
         switch (type) {
+          // Date values
+          case "removal":
           case "released":
             if (!value) break;
             record.released = new Date(value);
             break;
+
+          // yes/no boolean values
           case "members":
           case "aggressive":
           case "poisonous":
+          case "tradeable":
+          case "bankable":
+          case "equipable":
+          case "stackable":
+          case "noteable":
+          case "flatpackable":
             if (!value) break;
             record[type] = yesNoToBool(value);
             break;
+
+          // Re-keyed yes/no boolean values
+          case "quest item":
+            if (!value) break;
+            record.questItem = yesNoToBool(value);
+            break;
+
+          // Re-keyed number values
           case "max hit":
             if (!value) break;
-            record.maxHit = parseFloat(value);
+            record.maxHit = extractFloat(value);
             break;
           case "combat level":
             if (!value) break;
-            record.combat = parseFloat(value);
+            record.combat = extractFloat(value);
             break;
           case "monster id":
             if (!value) break;
-            record.monsterId = parseFloat(value);
+            record.monsterId = extractFloat(value);
             break;
+          case "high alch":
+            if (!value) break;
+            record.highAlch = extractFloat(value);
+            break;
+          case "low alch":
+            if (!value) break;
+            record.lowAlch = extractFloat(value);
+            break;
+          case "buy limit":
+            if (!value) break;
+            record.buyLimit = extractFloat(value);
+            break;
+          case "daily volume":
+            if (!value) break;
+            record.dailyVolume = extractFloat(value);
+            break;
+
+          // Exact match number values
+          case "participants":
+          case "value":
+          case "weight":
+          case "level":
+          case "experience":
+          case "exchange":
+            if (!value) break;
+            record[type] = extractFloat(value);
+            break;
+
+          // Immunity boolean values
           case "poison":
           case "venom":
           case "cannons":
           case "thralls":
             record[`${type}Immunity`] = immuneToBool(value);
             break;
+
+          // Exact match values
           case "size":
           case "examine":
           case "attribute":
+          case "race":
+          case "gender":
+          case "type":
+          case "duration":
+          case "composer":
+          case "location":
+          case "tutorial":
+          case "music":
+          case "room":
+          case "destroy":
             record[type] = value;
             break;
+
+          // Re-keyed string values
           case "attack style":
             record.attackStyle = value;
             break;
           case "respawn time":
             record.respawnTime = value;
             break;
+          case "reward currency":
+            record.rewardCurrency = value;
+            break;
+          case "unlock hint":
+            record.unlockHint = value;
+            break;
+
+          // Comma-separated array value
+          case "skills":
+          case "options":
+          case "hotspot":
+          case "shop":
+            record[type] = value?.split(",").map((v) => v.trim());
+            break;
+
+          // Re-keyed parsed-from-image values
           case "attack speed":
             let attackSpeed;
             const attackSpeedSrc = tr.querySelector("img")?.src;
@@ -121,9 +210,17 @@ export const scrape = async () => {
               "/images/Monster_attack_speed_"
             );
             const [speedStr] = (second ?? "").split(".");
-            if (speedStr) attackSpeed = parseFloat(speedStr);
+            if (speedStr) attackSpeed = extractFloat(speedStr);
             record.attackSpeed = attackSpeed;
             break;
+
+          // Images
+          case "icon":
+            const imgSrc = tr.querySelector("img")?.src;
+            record[type] = `${BASE_URL}${imgSrc}`;
+            break;
+
+          // Default
           default:
             console.log("Missed info type:", type);
             break;
@@ -132,6 +229,7 @@ export const scrape = async () => {
         return;
       }
 
+      // Combat stats
       const titles = Array.from(
         tr.querySelectorAll<HTMLAnchorElement>("th a") ?? []
       ).map((a) => a?.title?.toLowerCase());
@@ -158,38 +256,40 @@ export const scrape = async () => {
                 case "defence":
                 case "magic":
                 case "ranged":
-                  record[title] = parseFloat(value);
+                  record[title] = extractFloat(value);
                   break;
                 default:
                   console.log("Missed combat stat:", title);
                   break;
               }
               break;
+
             case "aggressive stats":
               switch (title) {
                 case "monster attack bonus":
-                  record.attackBonus = parseFloat(value);
+                  record.attackBonus = extractFloat(value);
                   break;
                 case "monster strength bonus":
-                  record.strengthBonus = parseFloat(value);
+                  record.strengthBonus = extractFloat(value);
                   break;
                 case "magic":
-                  record.magicBonus = parseFloat(value);
+                  record.magicBonus = extractFloat(value);
                   break;
                 case "monster magic strength bonus":
-                  record.magicStrengthBonus = parseFloat(value);
+                  record.magicStrengthBonus = extractFloat(value);
                   break;
                 case "ranged":
-                  record.rangedBonus = parseFloat(value);
+                  record.rangedBonus = extractFloat(value);
                   break;
                 case "monster ranged strength bonus":
-                  record.rangedStrengthBonus = parseFloat(value);
+                  record.rangedStrengthBonus = extractFloat(value);
                   break;
                 default:
                   console.log("Missed aggressive stat:", title);
                   break;
               }
               break;
+
             case "defensive stats":
               switch (title) {
                 case "stab":
@@ -197,13 +297,14 @@ export const scrape = async () => {
                 case "crush":
                 case "magic":
                 case "ranged":
-                  record[`${title}Defense`] = parseFloat(value);
+                  record[`${title}Defense`] = extractFloat(value);
                   break;
                 default:
                   console.log("Missed defensive stat:", title);
                   break;
               }
               break;
+
             default:
               console.log("Missed category:", category);
               break;
@@ -234,7 +335,7 @@ export const scrape = async () => {
             if (!heading || heading === "map") return curr;
 
             if (heading === "spawns") {
-              curr[heading] = parseFloat(values[i] as string);
+              curr[heading] = extractFloat(values[i] as string);
             } else {
               curr[heading] = values[i];
             }
@@ -244,6 +345,11 @@ export const scrape = async () => {
         })
         .filter(Boolean);
     }
+
+    // Dangerous activity
+    record.dangerousActivity = !!qs(dom, ".messagebox.warn")
+      ?.textContent?.toLowerCase()
+      .includes("this is a dangerous activity");
 
     await write("item", [record], ["slug"]);
 

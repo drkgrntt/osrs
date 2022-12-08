@@ -4,7 +4,7 @@ import { getItem, searchItems } from "./controllers/item";
 import { scrape } from "./controllers/scrape";
 import { continuousScrape } from "./lib/scrape";
 
-const main = async () => {
+const openApi = async () => {
   const app = express();
 
   app.get("/random", scrape);
@@ -18,9 +18,9 @@ const main = async () => {
 };
 
 try {
-  main();
+  openApi();
 
-  continuousScrape();
+  if (process.env.NODE_ENV === "production") continuousScrape();
 } catch (error) {
   console.error(error);
 }
