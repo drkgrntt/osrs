@@ -178,6 +178,9 @@ const imgSrcKeys = ["icon"];
 const skipKeys = (title?: string) => [
   "advanced data",
   "map",
+  "attack bonuses",
+  "defence bonuses",
+  "other bonuses",
   title?.toLowerCase(),
 ];
 
