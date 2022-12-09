@@ -218,204 +218,200 @@ const parseInfoBox = (
   let key;
 
   // Infobox values
-  const trs = qsa(dom, ".mw-parser-output .infobox tr");
+  const trs = qsa<HTMLTableRowElement>(dom, ".mw-parser-output .infobox tr");
   trs.forEach((tr) => {
-    const type = tr.querySelector("th")?.textContent?.toLowerCase();
+    const type = tr.querySelector("th")?.textContent?.toLowerCase() as string;
     const value = tr.querySelector("td")?.textContent;
 
-    if (type) {
-      switch (true) {
-        // Exact match strings
-        case stringKeys.includes(type):
-          record[type] = value;
-          break;
+    if (!type) return parseCombatStats(tr, record);
 
-        // Dates
-        case dateKeys.includes(type):
-          if (!value) break;
-          record[type] = new Date(value);
-          break;
+    switch (true) {
+      // Exact match strings
+      case stringKeys.includes(type):
+        record[type] = value;
+        break;
 
-        // Yes/no booleans
-        case yesNoKeys.includes(type):
-          if (!value) break;
-          record[type] = yesNoToBool(value);
-          break;
+      // Dates
+      case dateKeys.includes(type):
+        if (!value) break;
+        record[type] = new Date(value);
+        break;
 
-        // Immunity boolean values
-        case immunityKeys.includes(type):
-          record[`${type}Immunity`] = immuneToBool(value);
-          break;
+      // Yes/no booleans
+      case yesNoKeys.includes(type):
+        if (!value) break;
+        record[type] = yesNoToBool(value);
+        break;
 
-        // Exact match number values
-        case numberKeys.includes(type):
-          if (!value) break;
-          record[type] = extractFloat(value);
-          break;
+      // Immunity boolean values
+      case immunityKeys.includes(type):
+        record[`${type}Immunity`] = immuneToBool(value);
+        break;
 
-        // Comma separated string values
-        case commaSeparatedKeys.includes(type):
-          record[type] = value?.split(",").map((v) => v.trim());
-          break;
+      // Exact match number values
+      case numberKeys.includes(type):
+        if (!value) break;
+        record[type] = extractFloat(value);
+        break;
 
-        // Images
-        case imgSrcKeys.includes(type):
-          const imgSrc = tr.querySelector("img")?.src;
-          record[type] = `${BASE_URL}${imgSrc}`;
-          break;
+      // Comma separated string values
+      case commaSeparatedKeys.includes(type):
+        record[type] = value?.split(",").map((v) => v.trim());
+        break;
 
-        // Re-keyed string values
-        case Array.from(stringValueMap.keys()).includes(type):
-          key = stringValueMap.get(type);
+      // Images
+      case imgSrcKeys.includes(type):
+        const imgSrc = tr.querySelector("img")?.src;
+        record[type] = `${BASE_URL}${imgSrc}`;
+        break;
+
+      // Re-keyed string values
+      case Array.from(stringValueMap.keys()).includes(type):
+        key = stringValueMap.get(type);
+        if (!key) {
+          console.warn(`No key set for type ${type}`);
+          break;
+        }
+        record[key] = value;
+        key = "";
+        break;
+
+      // Re-keyed yes/no boolean values
+      case Array.from(yesNoMap.keys()).includes(type):
+        if (!value) break;
+        key = yesNoMap.get(type);
+        if (!key) {
+          console.warn(`No key set for type ${type}`);
+          break;
+        }
+        record[key] = yesNoToBool(value);
+        key = "";
+        break;
+
+      // Re-keyed number values
+      case Array.from(numberValueMap.keys()).includes(type):
+        if (!value) break;
+        key = numberValueMap.get(type);
+        if (!key) {
+          console.warn(`No key set for type ${type}`);
+          break;
+        }
+        record[key] = extractFloat(value);
+        key = "";
+        break;
+
+      // Comma-separated re-keyed array values
+      case Array.from(commaSeparatedValueMap.keys()).includes(type):
+        key = commaSeparatedValueMap.get(type);
+        if (!key) {
+          console.warn(`No key set for type ${type}`);
+          break;
+        }
+        record[key] = value?.split(",").map((v) => v.trim());
+        key = "";
+        break;
+
+      // Re-keyed parsed-from-image values
+      case type === "attack speed":
+        let attackSpeed;
+        const attackSpeedSrc = tr.querySelector("img")?.src;
+        const [, second] = (attackSpeedSrc ?? "").split(
+          "/images/Monster_attack_speed_"
+        );
+        const [speedStr] = (second ?? "").split(".");
+        if (speedStr) attackSpeed = extractFloat(speedStr);
+        record.attackSpeed = attackSpeed;
+        break;
+
+      // Log skip items
+      case skipKeys(title).includes(type):
+        break;
+
+      // Default
+      default:
+        console.log("Missed info type:", type);
+        break;
+    }
+  });
+};
+
+const combatStatKeys = [
+  "hitpoints",
+  "attack",
+  "strength",
+  "defence",
+  "magic",
+  "ranged",
+];
+const defensiveStatKeys = ["stab", "slash", "crush", "magic", "ranged"];
+const aggressiveStatKeyMap = new Map([
+  ["monster attack bonus", "attackBonus"],
+  ["monster strength bonus", "strengthBonus"],
+  ["magic", "magicBonus"],
+  ["monster magic strength bonus", "magicStrengthBonus"],
+  ["ranged", "rangedBonus"],
+  ["monster ranged strength bonus", "rangedStrengthBonus"],
+]);
+
+/**
+ * Mutate the recore with combat stats
+ * @param tr The table row being parsed
+ * @param record The record we're populating
+ */
+const parseCombatStats = (
+  tr: HTMLTableRowElement,
+  record: Record<string, any>
+) => {
+  const titles = Array.from(
+    tr.querySelectorAll<HTMLAnchorElement>("th a") ?? []
+  ).map((a) => a?.title?.toLowerCase());
+
+  if (!titles.length) return;
+
+  const category =
+    tr.previousElementSibling?.previousElementSibling?.textContent
+      ?.trim()
+      .toLowerCase();
+
+  const values = Array.from(
+    tr.nextElementSibling?.querySelectorAll("td") ?? []
+  ).map((td) => td?.textContent);
+
+  titles.forEach((title, i) => {
+    const value = values[i];
+    if (!value) return;
+
+    switch (category) {
+      case "combat stats":
+        if (combatStatKeys.includes(title)) {
+          record[title] = extractFloat(value);
+        } else {
+          console.log("Missed combat stat:", title);
+        }
+        break;
+
+      case "aggressive stats":
+        if (Array.from(aggressiveStatKeyMap.keys()).includes(title)) {
+          const key = aggressiveStatKeyMap.get(title);
           if (!key) {
-            console.warn(`No key set for type ${type}`);
-            break;
-          }
-          record[key] = value;
-          key = "";
-          break;
-
-        // Re-keyed yes/no boolean values
-        case Array.from(yesNoMap.keys()).includes(type):
-          if (!value) break;
-          key = yesNoMap.get(type);
-          if (!key) {
-            console.warn(`No key set for type ${type}`);
-            break;
-          }
-          record[key] = yesNoToBool(value);
-          key = "";
-          break;
-
-        // Re-keyed number values
-        case Array.from(numberValueMap.keys()).includes(type):
-          if (!value) break;
-          key = numberValueMap.get(type);
-          if (!key) {
-            console.warn(`No key set for type ${type}`);
+            console.warn(`No key set for title ${title}`);
             break;
           }
           record[key] = extractFloat(value);
-          key = "";
-          break;
-
-        // Comma-separated re-keyed array values
-        case Array.from(commaSeparatedValueMap.keys()).includes(type):
-          key = commaSeparatedValueMap.get(type);
-          if (!key) {
-            console.warn(`No key set for type ${type}`);
-            break;
-          }
-          record[key] = value?.split(",").map((v) => v.trim());
-          key = "";
-          break;
-
-        // Re-keyed parsed-from-image values
-        case type === "attack speed":
-          let attackSpeed;
-          const attackSpeedSrc = tr.querySelector("img")?.src;
-          const [, second] = (attackSpeedSrc ?? "").split(
-            "/images/Monster_attack_speed_"
-          );
-          const [speedStr] = (second ?? "").split(".");
-          if (speedStr) attackSpeed = extractFloat(speedStr);
-          record.attackSpeed = attackSpeed;
-          break;
-
-        // Log skip items
-        case skipKeys(title).includes(type):
-          break;
-
-        // Default
-        default:
-          console.log("Missed info type:", type);
-          break;
-      }
-
-      return;
-    }
-
-    // Combat stats
-    const titles = Array.from(
-      tr.querySelectorAll<HTMLAnchorElement>("th a") ?? []
-    ).map((a) => a?.title?.toLowerCase());
-    if (titles.length) {
-      const category =
-        tr.previousElementSibling?.previousElementSibling?.textContent
-          ?.trim()
-          .toLowerCase();
-
-      const values = Array.from(
-        tr.nextElementSibling?.querySelectorAll("td") ?? []
-      ).map((td) => td?.textContent);
-
-      titles.forEach((title, i) => {
-        const value = values[i];
-        if (!value) return;
-
-        switch (category) {
-          case "combat stats":
-            switch (title) {
-              case "hitpoints":
-              case "attack":
-              case "strength":
-              case "defence":
-              case "magic":
-              case "ranged":
-                record[title] = extractFloat(value);
-                break;
-              default:
-                console.log("Missed combat stat:", title);
-                break;
-            }
-            break;
-
-          case "aggressive stats":
-            switch (title) {
-              case "monster attack bonus":
-                record.attackBonus = extractFloat(value);
-                break;
-              case "monster strength bonus":
-                record.strengthBonus = extractFloat(value);
-                break;
-              case "magic":
-                record.magicBonus = extractFloat(value);
-                break;
-              case "monster magic strength bonus":
-                record.magicStrengthBonus = extractFloat(value);
-                break;
-              case "ranged":
-                record.rangedBonus = extractFloat(value);
-                break;
-              case "monster ranged strength bonus":
-                record.rangedStrengthBonus = extractFloat(value);
-                break;
-              default:
-                console.log("Missed aggressive stat:", title);
-                break;
-            }
-            break;
-
-          case "defensive stats":
-            switch (title) {
-              case "stab":
-              case "slash":
-              case "crush":
-              case "magic":
-              case "ranged":
-                record[`${title}Defense`] = extractFloat(value);
-                break;
-              default:
-                console.log("Missed defensive stat:", title);
-                break;
-            }
-            break;
-
-          default:
-            console.log("Missed category:", category);
-            break;
         }
-      });
+        break;
+
+      case "defensive stats":
+        if (defensiveStatKeys.includes(title)) {
+          record[`${title}Defense`] = extractFloat(value);
+        } else {
+          console.log("Missed defensive stat:", title);
+        }
+        break;
+
+      default:
+        console.log("Missed category:", category);
+        break;
     }
   });
 };
