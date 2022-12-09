@@ -343,7 +343,6 @@ const combatStatKeys = [
   "magic",
   "ranged",
 ];
-const defensiveStatKeys = ["stab", "slash", "crush", "magic", "ranged"];
 const aggressiveStatKeyMap = new Map([
   ["monster attack bonus", "attackBonus"],
   ["monster strength bonus", "strengthBonus"],
@@ -351,6 +350,16 @@ const aggressiveStatKeyMap = new Map([
   ["monster magic strength bonus", "magicStrengthBonus"],
   ["ranged", "rangedBonus"],
   ["monster ranged strength bonus", "rangedStrengthBonus"],
+]);
+const defensiveStatKeys = ["stab", "slash", "crush", "magic", "ranged"];
+const attackBonusKeys = ["stab", "slash", "crush", "magic", "ranged"];
+const defenseBonusKeys = ["stab", "slash", "crush", "magic", "ranged"];
+const otherBonusKeyMap = new Map([
+  ["strength bonus", "strength"],
+  ["ranged strength", "rangedStrength"],
+  ["magic damage", "magic"],
+  ["prayer", "prayer"],
+  // ["ammo slot", "ammoSlot"],
 ]);
 
 /**
@@ -396,6 +405,8 @@ const parseCombatStats = (
           if (!key) {
             console.warn(`No key set for title ${title}`);
             break;
+          } else {
+            console.log("Missed aggressive stat:", title);
           }
           record[key] = extractFloat(value);
         }
@@ -406,6 +417,35 @@ const parseCombatStats = (
           record[`${title}Defense`] = extractFloat(value);
         } else {
           console.log("Missed defensive stat:", title);
+        }
+        break;
+
+      case "attack bonuses":
+        if (attackBonusKeys.includes(title)) {
+          record[`${title}AttackBonus`] = extractFloat(value);
+        } else {
+          console.log("Missed attack bonus:", title);
+        }
+        break;
+
+      case "defense bonuses":
+        if (defenseBonusKeys.includes(title)) {
+          record[`${title}DefenseBonus`] = extractFloat(value);
+        } else {
+          console.log("Missed defense bonus:", title);
+        }
+        break;
+
+      case "other bonusesslot": // Row includes slot
+        if (Array.from(otherBonusKeyMap.keys()).includes(title)) {
+          const key = otherBonusKeyMap.get(title);
+          if (!key) {
+            console.warn(`No key set for title ${title}`);
+            break;
+          }
+          record[`${key}OtherBonus`] = extractFloat(value);
+        } else {
+          console.log("Missed other bonus:", title);
         }
         break;
 
