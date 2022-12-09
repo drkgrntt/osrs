@@ -429,6 +429,7 @@ const parseCombatStats = (
         break;
 
       case "defense bonuses":
+      case "defence bonuses": // What??? Normalized typo!
         if (defenseBonusKeys.includes(title)) {
           record[`${title}DefenseBonus`] = extractFloat(value);
         } else {
