@@ -220,8 +220,11 @@ const parseInfoBox = (
   // Infobox values
   const trs = qsa<HTMLTableRowElement>(dom, ".mw-parser-output .infobox tr");
   trs.forEach((tr) => {
-    const type = tr.querySelector("th")?.textContent?.toLowerCase() as string;
-    const value = tr.querySelector("td")?.textContent;
+    const type = tr
+      .querySelector("th")
+      ?.textContent?.toLowerCase()
+      .trim() as string;
+    const value = tr.querySelector("td")?.textContent?.trim();
 
     if (!type) return parseCombatStats(tr, record);
 
@@ -373,7 +376,7 @@ const parseCombatStats = (
 ) => {
   const titles = Array.from(
     tr.querySelectorAll<HTMLAnchorElement>("th a") ?? []
-  ).map((a) => a?.title?.toLowerCase());
+  ).map((a) => a?.title?.toLowerCase().trim());
 
   if (!titles.length) return;
 
@@ -384,7 +387,7 @@ const parseCombatStats = (
 
   const values = Array.from(
     tr.nextElementSibling?.querySelectorAll("td") ?? []
-  ).map((td) => td?.textContent);
+  ).map((td) => td?.textContent?.trim());
 
   titles.forEach((title, i) => {
     const value = values[i];
