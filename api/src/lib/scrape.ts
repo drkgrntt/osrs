@@ -440,6 +440,7 @@ const parseCombatStats = (
         }
         break;
 
+      case "other bonuses":
       case "other bonusesslot": // Row includes slot
         if (Array.from(otherBonusKeyMap.keys()).includes(title)) {
           const key = otherBonusKeyMap.get(title);
