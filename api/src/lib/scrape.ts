@@ -79,276 +79,7 @@ export const scrape = async () => {
       ];
     }
 
-    // Infobox values
-    const trs = qsa(dom, ".mw-parser-output .infobox tr");
-    trs.forEach((tr) => {
-      const type = tr.querySelector("th")?.textContent?.toLowerCase();
-      const value = tr.querySelector("td")?.textContent;
-
-      if (type) {
-        switch (type) {
-          // Date values
-          case "removal":
-          case "released":
-            if (!value) break;
-            record.released = new Date(value);
-            break;
-
-          // yes/no boolean values
-          case "members":
-          case "aggressive":
-          case "poisonous":
-          case "tradeable":
-          case "bankable":
-          case "equipable":
-          case "stackable":
-          case "noteable":
-          case "flatpackable":
-            if (!value) break;
-            record[type] = yesNoToBool(value);
-            break;
-
-          // Re-keyed yes/no boolean values
-          case "quest item":
-            if (!value) break;
-            record.questItem = yesNoToBool(value);
-            break;
-
-          // Re-keyed number values
-          case "max hit":
-            if (!value) break;
-            record.maxHit = extractFloat(value);
-            break;
-          case "combat level":
-            if (!value) break;
-            record.combat = extractFloat(value);
-            break;
-          case "monster id":
-            if (!value) break;
-            record.monsterId = extractFloat(value);
-            break;
-          case "high alch":
-            if (!value) break;
-            record.highAlch = extractFloat(value);
-            break;
-          case "low alch":
-            if (!value) break;
-            record.lowAlch = extractFloat(value);
-            break;
-          case "buy limit":
-            if (!value) break;
-            record.buyLimit = extractFloat(value);
-            break;
-          case "daily volume":
-            if (!value) break;
-            record.dailyVolume = extractFloat(value);
-            break;
-          case "npc id":
-            if (!value) break;
-            record.npcId = extractFloat(value);
-            break;
-          case "object id":
-            if (!value) break;
-            record.objectId = extractFloat(value);
-            break;
-          case "item id":
-            if (!value) break;
-            record.itemId = extractFloat(value);
-            break;
-          case "level required":
-            if (!value) break;
-            record.levelRequired = extractFloat(value);
-            break;
-          case "agility xp":
-            if (!value) break;
-            record.agilityXp = extractFloat(value);
-            break;
-
-          // Exact match number values
-          case "participants":
-          case "value":
-          case "weight":
-          case "level":
-          case "experience":
-          case "floors":
-          case "exchange":
-            if (!value) break;
-            record[type] = extractFloat(value);
-            break;
-
-          // Immunity boolean values
-          case "poison":
-          case "venom":
-          case "cannons":
-          case "thralls":
-            record[`${type}Immunity`] = immuneToBool(value);
-            break;
-
-          // Exact match values
-          case "size":
-          case "examine":
-          case "attribute":
-          case "race":
-          case "gender":
-          case "type":
-          case "duration":
-          case "composer":
-          case "location":
-          case "tutorial":
-          case "quest":
-          case "room":
-          case "destroy":
-            record[type] = value;
-            break;
-
-          // Re-keyed string values
-          case "respawn time":
-            record.respawnTime = value;
-            break;
-          case "reward currency":
-            record.rewardCurrency = value;
-            break;
-          case "unlock hint":
-            record.unlockHint = value;
-            break;
-          case "agility course":
-            record.agilityCourse = value;
-            break;
-          case "quest series":
-            record.questSeries = value;
-            break;
-
-          // Comma-separated re-keyed array values
-          case "attack style":
-            record.attackStyle = value?.split(",").map((v) => v.trim());
-            break;
-
-          // Comma-separated array value
-          case "skills":
-          case "options":
-          case "music":
-          case "inhabitants":
-          case "hotspot":
-          case "shop":
-            record[type] = value?.split(",").map((v) => v.trim());
-            break;
-
-          // Re-keyed parsed-from-image values
-          case "attack speed":
-            let attackSpeed;
-            const attackSpeedSrc = tr.querySelector("img")?.src;
-            const [, second] = (attackSpeedSrc ?? "").split(
-              "/images/Monster_attack_speed_"
-            );
-            const [speedStr] = (second ?? "").split(".");
-            if (speedStr) attackSpeed = extractFloat(speedStr);
-            record.attackSpeed = attackSpeed;
-            break;
-
-          // Images
-          case "icon":
-            const imgSrc = tr.querySelector("img")?.src;
-            record[type] = `${BASE_URL}${imgSrc}`;
-            break;
-
-          // Log skip items
-          case "advanced data":
-          case "map":
-          case title?.toLowerCase():
-            break;
-
-          // Default
-          default:
-            console.log("Missed info type:", type);
-            break;
-        }
-
-        return;
-      }
-
-      // Combat stats
-      const titles = Array.from(
-        tr.querySelectorAll<HTMLAnchorElement>("th a") ?? []
-      ).map((a) => a?.title?.toLowerCase());
-      if (titles.length) {
-        const category =
-          tr.previousElementSibling?.previousElementSibling?.textContent
-            ?.trim()
-            .toLowerCase();
-
-        const values = Array.from(
-          tr.nextElementSibling?.querySelectorAll("td") ?? []
-        ).map((td) => td?.textContent);
-
-        titles.forEach((title, i) => {
-          const value = values[i];
-          if (!value) return;
-
-          switch (category) {
-            case "combat stats":
-              switch (title) {
-                case "hitpoints":
-                case "attack":
-                case "strength":
-                case "defence":
-                case "magic":
-                case "ranged":
-                  record[title] = extractFloat(value);
-                  break;
-                default:
-                  console.log("Missed combat stat:", title);
-                  break;
-              }
-              break;
-
-            case "aggressive stats":
-              switch (title) {
-                case "monster attack bonus":
-                  record.attackBonus = extractFloat(value);
-                  break;
-                case "monster strength bonus":
-                  record.strengthBonus = extractFloat(value);
-                  break;
-                case "magic":
-                  record.magicBonus = extractFloat(value);
-                  break;
-                case "monster magic strength bonus":
-                  record.magicStrengthBonus = extractFloat(value);
-                  break;
-                case "ranged":
-                  record.rangedBonus = extractFloat(value);
-                  break;
-                case "monster ranged strength bonus":
-                  record.rangedStrengthBonus = extractFloat(value);
-                  break;
-                default:
-                  console.log("Missed aggressive stat:", title);
-                  break;
-              }
-              break;
-
-            case "defensive stats":
-              switch (title) {
-                case "stab":
-                case "slash":
-                case "crush":
-                case "magic":
-                case "ranged":
-                  record[`${title}Defense`] = extractFloat(value);
-                  break;
-                default:
-                  console.log("Missed defensive stat:", title);
-                  break;
-              }
-              break;
-
-            default:
-              console.log("Missed category:", category);
-              break;
-          }
-        });
-      }
-    });
+    parseInfoBox(dom, record, title);
 
     const locationsElem = qs(dom, "#Locations");
     if (locationsElem) {
@@ -396,4 +127,295 @@ export const scrape = async () => {
   } catch (error) {
     return { error };
   }
+};
+
+const stringKeys = [
+  "size",
+  "examine",
+  "attribute",
+  "race",
+  "gender",
+  "type",
+  "duration",
+  "composer",
+  "location",
+  "tutorial",
+  "quest",
+  "room",
+  "destroy",
+];
+const dateKeys = ["removal", "released"];
+const yesNoKeys = [
+  "members",
+  "aggressive",
+  "poisonous",
+  "tradeable",
+  "bankable",
+  "equipable",
+  "stackable",
+  "noteable",
+  "flatpackable",
+];
+const immunityKeys = ["poison", "venom", "cannons", "thralls"];
+const numberKeys = [
+  "participants",
+  "value",
+  "weight",
+  "level",
+  "experience",
+  "floors",
+  "exchange",
+];
+const commaSeparatedKeys = [
+  "skills",
+  "options",
+  "music",
+  "inhabitants",
+  "hotspot",
+  "shop",
+];
+const imgSrcKeys = ["icon"];
+const skipKeys = (title?: string) => [
+  "advanced data",
+  "map",
+  title?.toLowerCase(),
+];
+
+const stringValueMap = new Map([
+  ["respawn time", "respawnTime"],
+  ["reward currency", "rewardCurrency"],
+  ["unlock hint", "unlockHint"],
+  ["agility course", "agilityCourse"],
+  ["quest series", "questSeries"],
+]);
+const yesNoMap = new Map([["quest item", "questItem"]]);
+const numberValueMap = new Map([
+  ["max hit", "maxHit"],
+  ["combat level", "combat"],
+  ["monster id", "monsterId"],
+  ["high alch", "highAlch"],
+  ["low alch", "lowAlch"],
+  ["buy limit", "buyLimit"],
+  ["daily volume", "dailyVolume"],
+  ["npc id", "npcId"],
+  ["object id", "objectId"],
+  ["item id", "itemId"],
+  ["level required", "levelRequired"],
+  ["agility xp", "agilityXp"],
+]);
+const commaSeparatedValueMap = new Map([["attack style", "attackStyle"]]);
+
+/**
+ * Mutate the recore with the info found in the infobox in the dom
+ * @param dom JSDOM object we're looking through
+ * @param record The record we're populating
+ */
+const parseInfoBox = (
+  dom: JSDOM,
+  record: Record<string, any>,
+  title?: string
+) => {
+  let key;
+
+  // Infobox values
+  const trs = qsa(dom, ".mw-parser-output .infobox tr");
+  trs.forEach((tr) => {
+    const type = tr.querySelector("th")?.textContent?.toLowerCase();
+    const value = tr.querySelector("td")?.textContent;
+
+    if (type) {
+      switch (true) {
+        // Exact match strings
+        case stringKeys.includes(type):
+          record[type] = value;
+          break;
+
+        // Dates
+        case dateKeys.includes(type):
+          if (!value) break;
+          record[type] = new Date(value);
+          break;
+
+        // Yes/no booleans
+        case yesNoKeys.includes(type):
+          if (!value) break;
+          record[type] = yesNoToBool(value);
+          break;
+
+        // Immunity boolean values
+        case immunityKeys.includes(type):
+          record[`${type}Immunity`] = immuneToBool(value);
+          break;
+
+        // Exact match number values
+        case numberKeys.includes(type):
+          if (!value) break;
+          record[type] = extractFloat(value);
+          break;
+
+        // Comma separated string values
+        case commaSeparatedKeys.includes(type):
+          record[type] = value?.split(",").map((v) => v.trim());
+          break;
+
+        // Images
+        case imgSrcKeys.includes(type):
+          const imgSrc = tr.querySelector("img")?.src;
+          record[type] = `${BASE_URL}${imgSrc}`;
+          break;
+
+        // Re-keyed string values
+        case Array.from(stringValueMap.keys()).includes(type):
+          key = stringValueMap.get(type);
+          if (!key) {
+            console.warn(`No key set for type ${type}`);
+            break;
+          }
+          record[key] = value;
+          key = "";
+          break;
+
+        // Re-keyed yes/no boolean values
+        case Array.from(yesNoMap.keys()).includes(type):
+          if (!value) break;
+          key = yesNoMap.get(type);
+          if (!key) {
+            console.warn(`No key set for type ${type}`);
+            break;
+          }
+          record[key] = yesNoToBool(value);
+          key = "";
+          break;
+
+        // Re-keyed number values
+        case Array.from(numberValueMap.keys()).includes(type):
+          if (!value) break;
+          key = numberValueMap.get(type);
+          if (!key) {
+            console.warn(`No key set for type ${type}`);
+            break;
+          }
+          record[key] = extractFloat(value);
+          key = "";
+          break;
+
+        // Comma-separated re-keyed array values
+        case Array.from(commaSeparatedValueMap.keys()).includes(type):
+          key = commaSeparatedValueMap.get(type);
+          if (!key) {
+            console.warn(`No key set for type ${type}`);
+            break;
+          }
+          record[key] = value?.split(",").map((v) => v.trim());
+          key = "";
+          break;
+
+        // Re-keyed parsed-from-image values
+        case type === "attack speed":
+          let attackSpeed;
+          const attackSpeedSrc = tr.querySelector("img")?.src;
+          const [, second] = (attackSpeedSrc ?? "").split(
+            "/images/Monster_attack_speed_"
+          );
+          const [speedStr] = (second ?? "").split(".");
+          if (speedStr) attackSpeed = extractFloat(speedStr);
+          record.attackSpeed = attackSpeed;
+          break;
+
+        // Log skip items
+        case skipKeys(title).includes(type):
+          break;
+
+        // Default
+        default:
+          console.log("Missed info type:", type);
+          break;
+      }
+
+      return;
+    }
+
+    // Combat stats
+    const titles = Array.from(
+      tr.querySelectorAll<HTMLAnchorElement>("th a") ?? []
+    ).map((a) => a?.title?.toLowerCase());
+    if (titles.length) {
+      const category =
+        tr.previousElementSibling?.previousElementSibling?.textContent
+          ?.trim()
+          .toLowerCase();
+
+      const values = Array.from(
+        tr.nextElementSibling?.querySelectorAll("td") ?? []
+      ).map((td) => td?.textContent);
+
+      titles.forEach((title, i) => {
+        const value = values[i];
+        if (!value) return;
+
+        switch (category) {
+          case "combat stats":
+            switch (title) {
+              case "hitpoints":
+              case "attack":
+              case "strength":
+              case "defence":
+              case "magic":
+              case "ranged":
+                record[title] = extractFloat(value);
+                break;
+              default:
+                console.log("Missed combat stat:", title);
+                break;
+            }
+            break;
+
+          case "aggressive stats":
+            switch (title) {
+              case "monster attack bonus":
+                record.attackBonus = extractFloat(value);
+                break;
+              case "monster strength bonus":
+                record.strengthBonus = extractFloat(value);
+                break;
+              case "magic":
+                record.magicBonus = extractFloat(value);
+                break;
+              case "monster magic strength bonus":
+                record.magicStrengthBonus = extractFloat(value);
+                break;
+              case "ranged":
+                record.rangedBonus = extractFloat(value);
+                break;
+              case "monster ranged strength bonus":
+                record.rangedStrengthBonus = extractFloat(value);
+                break;
+              default:
+                console.log("Missed aggressive stat:", title);
+                break;
+            }
+            break;
+
+          case "defensive stats":
+            switch (title) {
+              case "stab":
+              case "slash":
+              case "crush":
+              case "magic":
+              case "ranged":
+                record[`${title}Defense`] = extractFloat(value);
+                break;
+              default:
+                console.log("Missed defensive stat:", title);
+                break;
+            }
+            break;
+
+          default:
+            console.log("Missed category:", category);
+            break;
+        }
+      });
+    }
+  });
 };
