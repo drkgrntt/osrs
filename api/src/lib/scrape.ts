@@ -202,9 +202,6 @@ export const scrape = async () => {
             break;
 
           // Re-keyed string values
-          case "attack style":
-            record.attackStyle = value;
-            break;
           case "respawn time":
             record.respawnTime = value;
             break;
@@ -219,6 +216,11 @@ export const scrape = async () => {
             break;
           case "quest series":
             record.questSeries = value;
+            break;
+
+          // Comma-separated re-keyed array values
+          case "attack style":
+            record.attackStyle = value?.split(",").map((v) => v.trim());
             break;
 
           // Comma-separated array value
