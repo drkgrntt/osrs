@@ -121,7 +121,7 @@ export const scrape = async () => {
 
     await write("item", [record], ["slug"]);
 
-    console.log("Scraped: ", title);
+    console.info("Scraped: ", title);
 
     return record;
   } catch (error) {
@@ -382,7 +382,7 @@ const parseInfoBox = (
 
       // Default
       default:
-        console.log("Missed info type:", type);
+        console.warn("Missed info type:", type);
         break;
     }
   });
@@ -448,7 +448,7 @@ const parseCombatStats = (
         if (combatStatKeys.includes(title)) {
           record[title] = extractFloat(value);
         } else {
-          console.log("Missed combat stat:", title);
+          console.warn("Missed combat stat:", title);
         }
         break;
 
@@ -461,7 +461,7 @@ const parseCombatStats = (
           }
           record[key] = extractFloat(value);
         } else {
-          console.log("Missed aggressive stat:", title);
+          console.warn("Missed aggressive stat:", title);
         }
         break;
 
@@ -469,7 +469,7 @@ const parseCombatStats = (
         if (defensiveStatKeys.includes(title)) {
           record[`${title}Defense`] = extractFloat(value);
         } else {
-          console.log("Missed defensive stat:", title);
+          console.warn("Missed defensive stat:", title);
         }
         break;
 
@@ -477,7 +477,7 @@ const parseCombatStats = (
         if (attackBonusKeys.includes(title)) {
           record[`${title}AttackBonus`] = extractFloat(value);
         } else {
-          console.log("Missed attack bonus:", title);
+          console.warn("Missed attack bonus:", title);
         }
         break;
 
@@ -486,7 +486,7 @@ const parseCombatStats = (
         if (defenseBonusKeys.includes(title)) {
           record[`${title}DefenseBonus`] = extractFloat(value);
         } else {
-          console.log("Missed defense bonus:", title);
+          console.warn("Missed defense bonus:", title);
         }
         break;
 
@@ -500,12 +500,12 @@ const parseCombatStats = (
           }
           record[`${key}OtherBonus`] = extractFloat(value);
         } else {
-          console.log("Missed other bonus:", title);
+          console.warn("Missed other bonus:", title);
         }
         break;
 
       default:
-        console.log("Missed category:", category);
+        console.warn("Missed category:", category);
         break;
     }
   });
