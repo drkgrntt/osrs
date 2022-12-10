@@ -157,6 +157,8 @@ const stringKeys = [
   "facility",
   "monster",
   "tier",
+  "owner",
+  "specialty",
 ];
 const dateKeys = ["removal", "released"];
 const yesNoKeys = [
@@ -189,6 +191,7 @@ const commaSeparatedKeys = [
   "shop",
 ];
 const imgSrcKeys = ["icon"];
+const imgSrcKeyMap = new Map([["minimap icon", "minimapIcon"]]);
 const skipKeys = (title?: string) => [
   "advanced data",
   "map",
@@ -260,6 +263,7 @@ const parseInfoBox = (
   title?: string
 ) => {
   let key;
+  let imgSrc;
 
   // Infobox values
   const trs = qsa<HTMLTableRowElement>(dom, ".mw-parser-output .infobox tr");
@@ -308,8 +312,22 @@ const parseInfoBox = (
 
       // Images
       case imgSrcKeys.includes(type):
-        const imgSrc = tr.querySelector("img")?.src;
+        imgSrc = tr.querySelector("img")?.src;
         record[type] = `${BASE_URL}${imgSrc}`;
+        imgSrc = "";
+        break;
+
+      // Re-keyed Images
+      case Array.from(imgSrcKeyMap.keys()).includes(type):
+        key = imgSrcKeyMap.get(type);
+        if (!key) {
+          console.warn(`No key set for type ${type}`);
+          break;
+        }
+        imgSrc = tr.querySelector("img")?.src;
+        record[key] = `${BASE_URL}${imgSrc}`;
+        key = "";
+        imgSrc = "";
         break;
 
       // Re-keyed string values
