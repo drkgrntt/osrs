@@ -143,6 +143,16 @@ const stringKeys = [
   "quest",
   "room",
   "destroy",
+  "category",
+  "turael",
+  "spira",
+  "krystilia",
+  "mazchna",
+  "vannaka",
+  "chaeldar",
+  "konar",
+  "nieve",
+  "duradel",
 ];
 const dateKeys = ["removal", "released"];
 const yesNoKeys = [
@@ -190,6 +200,7 @@ const stringValueMap = new Map([
   ["unlock hint", "unlockHint"],
   ["agility course", "agilityCourse"],
   ["quest series", "questSeries"],
+  ["other", "otherRequirements"],
 ]);
 const yesNoMap = new Map([["quest item", "questItem"]]);
 const numberValueMap = new Map([
@@ -203,8 +214,11 @@ const numberValueMap = new Map([
   ["npc id", "npcId"],
   ["object id", "objectId"],
   ["item id", "itemId"],
+  ["wikisync id", "wikisyncId"],
   ["level required", "levelRequired"],
   ["agility xp", "agilityXp"],
+  ["slayer level", "slayerLevel"],
+  ["slayer xp", "slayerXp"],
 ]);
 const commaSeparatedValueMap = new Map([["attack style", "attackStyle"]]);
 
@@ -327,6 +341,12 @@ const parseInfoBox = (
         const [speedStr] = (second ?? "").split(".");
         if (speedStr) attackSpeed = extractFloat(speedStr);
         record.attackSpeed = attackSpeed;
+        break;
+
+      case type === "assigned by":
+        record.assignedBy = Array.from(
+          tr.querySelectorAll<HTMLAnchorElement>("td a") ?? []
+        ).map((a) => a?.title?.trim());
         break;
 
       // Log skip items
