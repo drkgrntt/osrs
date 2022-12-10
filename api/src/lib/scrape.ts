@@ -191,6 +191,7 @@ const skipKeys = (title?: string) => [
   "attack bonuses",
   "defence bonuses",
   "other bonuses",
+  "aggressive stats",
   title?.toLowerCase(),
 ];
 
@@ -431,10 +432,10 @@ const parseCombatStats = (
           if (!key) {
             console.warn(`No key set for title ${title}`);
             break;
-          } else {
-            console.log("Missed aggressive stat:", title);
           }
           record[key] = extractFloat(value);
+        } else {
+          console.log("Missed aggressive stat:", title);
         }
         break;
 
