@@ -205,6 +205,10 @@ const skipKeys = (title?: string) => [
   "properties",
   "values",
   "grand exchange",
+  "combat info",
+  "immunities",
+  "combat stats",
+  "defensive stats",
   title?.toLowerCase(),
 ];
 
@@ -218,6 +222,7 @@ const stringValueMap = new Map([
   ["furniture name", "furnitureName"],
   ["combat level", "combatLevel"],
   ["description", "infoDescription"],
+  ["required tool", "requiredTool"],
 ]);
 const yesNoMap = new Map([["quest item", "questItem"]]);
 const numberValueMap = new Map([
@@ -240,6 +245,7 @@ const numberValueMap = new Map([
   ["thieving xp", "thievingXp"],
   ["prayer xp", "prayerXp"],
   ["construction xp", "constructionXp"],
+  ["woodcutting xp", "woodcuttingXp"],
 ]);
 const commaSeparatedValueMap = new Map([
   ["attack style", "attackStyle"],
