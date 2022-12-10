@@ -154,6 +154,9 @@ const stringKeys = [
   "konar",
   "nieve",
   "duradel",
+  "facility",
+  "monster",
+  "tier",
 ];
 const dateKeys = ["removal", "released"];
 const yesNoKeys = [
@@ -210,6 +213,7 @@ const stringValueMap = new Map([
   ["other", "otherRequirements"],
   ["furniture name", "furnitureName"],
   ["combat level", "combatLevel"],
+  ["description", "infoDescription"],
 ]);
 const yesNoMap = new Map([["quest item", "questItem"]]);
 const numberValueMap = new Map([
@@ -230,6 +234,8 @@ const numberValueMap = new Map([
   ["slayer level", "slayerLevel"],
   ["slayer xp", "slayerXp"],
   ["thieving xp", "thievingXp"],
+  ["prayer xp", "prayerXp"],
+  ["construction xp", "constructionXp"],
 ]);
 const commaSeparatedValueMap = new Map([
   ["attack style", "attackStyle"],
