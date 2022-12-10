@@ -136,6 +136,7 @@ const stringKeys = [
   "race",
   "gender",
   "type",
+  "tool",
   "duration",
   "composer",
   "location",
@@ -192,6 +193,11 @@ const skipKeys = (title?: string) => [
   "defence bonuses",
   "other bonuses",
   "aggressive stats",
+  "requirements",
+  "task amounts",
+  "properties",
+  "values",
+  "grand exchange",
   title?.toLowerCase(),
 ];
 
@@ -202,11 +208,12 @@ const stringValueMap = new Map([
   ["agility course", "agilityCourse"],
   ["quest series", "questSeries"],
   ["other", "otherRequirements"],
+  ["furniture name", "furnitureName"],
+  ["combat level", "combatLevel"],
 ]);
 const yesNoMap = new Map([["quest item", "questItem"]]);
 const numberValueMap = new Map([
   ["max hit", "maxHit"],
-  ["combat level", "combat"],
   ["monster id", "monsterId"],
   ["high alch", "highAlch"],
   ["low alch", "lowAlch"],
@@ -215,13 +222,26 @@ const numberValueMap = new Map([
   ["npc id", "npcId"],
   ["object id", "objectId"],
   ["item id", "itemId"],
+  ["icon id", "iconId"],
+  ["icon item id", "iconItemId"],
   ["wikisync id", "wikisyncId"],
   ["level required", "levelRequired"],
   ["agility xp", "agilityXp"],
   ["slayer level", "slayerLevel"],
   ["slayer xp", "slayerXp"],
+  ["thieving xp", "thievingXp"],
 ]);
-const commaSeparatedValueMap = new Map([["attack style", "attackStyle"]]);
+const commaSeparatedValueMap = new Map([
+  ["attack style", "attackStyle"],
+  ["worn options", "wornOptions"],
+  ["also called", "alsoCalled"],
+  ["build type", "buildType"],
+]);
+const keysForImageTitlesMap = new Map([
+  ["assigned by", "assignedBy"],
+  ["primary attack style", "primaryAttackStyle"],
+  ["uses attack styles", "usesAttackStyles"],
+]);
 
 /**
  * Mutate the recore with the info found in the infobox in the dom
@@ -344,8 +364,14 @@ const parseInfoBox = (
         record.attackSpeed = attackSpeed;
         break;
 
-      case type === "assigned by":
-        record.assignedBy = Array.from(
+      // Values as image titles
+      case Array.from(keysForImageTitlesMap.keys()).includes(type):
+        key = commaSeparatedValueMap.get(type);
+        if (!key) {
+          console.warn(`No key set for type ${type}`);
+          break;
+        }
+        record[key] = Array.from(
           tr.querySelectorAll<HTMLAnchorElement>("td a") ?? []
         ).map((a) => a?.title?.trim());
         break;
