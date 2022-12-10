@@ -189,6 +189,7 @@ const commaSeparatedKeys = [
   "inhabitants",
   "hotspot",
   "shop",
+  "instruments",
 ];
 const imgSrcKeys = ["icon"];
 const imgSrcKeyMap = new Map([["minimap icon", "minimapIcon"]]);
