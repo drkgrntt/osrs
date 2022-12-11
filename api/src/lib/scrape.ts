@@ -210,6 +210,7 @@ const commaSeparatedKeys = [
   "shop",
   "instruments",
 ];
+const aSeparatedKeys = ["teleports"];
 const imgSrcKeys = ["icon"];
 const imgSrcKeyMap = new Map([
   ["minimap icon", "minimapIcon"],
@@ -364,6 +365,13 @@ const parseInfoBox = (
         imgSrc = tr.querySelector("img")?.src;
         record[type] = `${BASE_URL}${imgSrc}`;
         imgSrc = "";
+        break;
+
+      // Separate A's
+      case aSeparatedKeys.includes(type):
+        record[type] = Array.from(tr.querySelectorAll("a")).map(
+          (a) => a.textContent
+        );
         break;
 
       // Re-keyed Images
