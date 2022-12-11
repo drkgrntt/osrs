@@ -143,6 +143,7 @@ const stringKeys = [
   "type",
   "tool",
   "trap",
+  "league",
   "duration",
   "composer",
   "location",
