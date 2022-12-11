@@ -157,6 +157,7 @@ const stringKeys = [
   "mazchna",
   "vannaka",
   "chaeldar",
+  "amunition",
   "konar",
   "nieve",
   "duradel",
@@ -217,6 +218,7 @@ const skipKeys = (title?: string) => [
   "immunities",
   "combat stats",
   "defensive stats",
+  "rock",
   title?.toLowerCase(),
 ];
 
@@ -232,7 +234,10 @@ const stringValueMap = new Map([
   ["description", "infoDescription"],
   ["required tool", "requiredTool"],
 ]);
-const yesNoMap = new Map([["quest item", "questItem"]]);
+const yesNoMap = new Map([
+  ["quest item", "questItem"],
+  ["two handed?", "twoHanded"],
+]);
 const numberValueMap = new Map([
   ["max hit", "maxHit"],
   ["monster id", "monsterId"],
@@ -255,6 +260,7 @@ const numberValueMap = new Map([
   ["construction xp", "constructionXp"],
   ["woodcutting xp", "woodcuttingXp"],
   ["hunter xp", "hunterXp"],
+  ["mining xp", "miningXp"],
   ["casting speed", "castingSpeed"],
   ["base max hit", "baseMaxHit"],
 ]);
