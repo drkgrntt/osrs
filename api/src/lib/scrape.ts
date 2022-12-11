@@ -202,7 +202,10 @@ const commaSeparatedKeys = [
   "instruments",
 ];
 const imgSrcKeys = ["icon"];
-const imgSrcKeyMap = new Map([["minimap icon", "minimapIcon"]]);
+const imgSrcKeyMap = new Map([
+  ["minimap icon", "minimapIcon"],
+  ["map icon", "mapIcon"],
+]);
 const skipKeys = (title?: string) => [
   "advanced data",
   "map",
