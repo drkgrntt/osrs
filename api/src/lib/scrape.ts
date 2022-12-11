@@ -149,6 +149,7 @@ const stringKeys = [
   "composer",
   "location",
   "tutorial",
+  "headquarters",
   "quest",
   "room",
   "destroy",
@@ -184,6 +185,7 @@ const yesNoKeys = [
   "tradeable",
   "bankable",
   "payment",
+  "edible",
   "equipable",
   "stackable",
   "regrow",
@@ -251,6 +253,7 @@ const stringValueMap = new Map([
   ["required tool", "requiredTool"],
   ["official difficulty", "officialDifficulty"],
   ["fishing spot", "fishingSpot"],
+  ["current leader", "currentLeader"],
 ]);
 const yesNoMap = new Map([
   ["quest item", "questItem"],
