@@ -160,6 +160,7 @@ const stringKeys = [
   "amunition",
   "konar",
   "nieve",
+  "bait",
   "duradel",
   "facility",
   "monster",
@@ -233,6 +234,8 @@ const stringValueMap = new Map([
   ["combat level", "combatLevel"],
   ["description", "infoDescription"],
   ["required tool", "requiredTool"],
+  ["official difficulty", "officialDifficulty"],
+  ["fishing spot", "fishingSpot"],
 ]);
 const yesNoMap = new Map([
   ["quest item", "questItem"],
@@ -263,12 +266,16 @@ const numberValueMap = new Map([
   ["mining xp", "miningXp"],
   ["casting speed", "castingSpeed"],
   ["base max hit", "baseMaxHit"],
+  ["fishing xp", "fishingXp"],
+  ["strength xp", "strengthXp"],
+  ["push duration", "pushDuration"],
 ]);
 const commaSeparatedValueMap = new Map([
   ["attack style", "attackStyle"],
   ["worn options", "wornOptions"],
   ["also called", "alsoCalled"],
   ["build type", "buildType"],
+  ["Lead developer(s)", "leadDevelopers"],
 ]);
 const keysForImageTitlesMap = new Map([
   ["assigned by", "assignedBy"],
