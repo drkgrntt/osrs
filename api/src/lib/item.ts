@@ -23,6 +23,7 @@ export const getItemsBySearch = async (search: string) => {
           score: { $meta: "textScore" },
         })
         .sort({ score: { $meta: "textScore" } })
+        .limit(20)
         .toArray();
 
       const closeEnough = await db
@@ -31,12 +32,13 @@ export const getItemsBySearch = async (search: string) => {
           _id: { $nin: matches.map((i) => i._id) },
           $or: [{ slug: regex }, { title: regex }],
         })
+        .limit(20)
         .toArray();
 
       return [
         ...matches.filter(({ score, ...fields }) => ({ ...fields })),
         ...closeEnough,
-      ];
+      ].filter((_, i) => i < 20);
     });
 
     return items;
