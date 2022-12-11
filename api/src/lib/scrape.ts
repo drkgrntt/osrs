@@ -135,12 +135,14 @@ export const scrape = async (pageName: string = RANDOM_PAGE) => {
 
 const stringKeys = [
   "size",
+  "element",
   "examine",
   "attribute",
   "race",
   "gender",
   "type",
   "tool",
+  "trap",
   "duration",
   "composer",
   "location",
@@ -160,6 +162,7 @@ const stringKeys = [
   "duradel",
   "facility",
   "monster",
+  "spellbook",
   "tier",
   "owner",
   "specialty",
@@ -175,6 +178,7 @@ const yesNoKeys = [
   "stackable",
   "noteable",
   "flatpackable",
+  "retaliation",
 ];
 const immunityKeys = ["poison", "venom", "cannons", "thralls"];
 const numberKeys = [
@@ -250,6 +254,9 @@ const numberValueMap = new Map([
   ["prayer xp", "prayerXp"],
   ["construction xp", "constructionXp"],
   ["woodcutting xp", "woodcuttingXp"],
+  ["hunter xp", "hunterXp"],
+  ["casting speed", "castingSpeed"],
+  ["base max hit", "baseMaxHit"],
 ]);
 const commaSeparatedValueMap = new Map([
   ["attack style", "attackStyle"],
@@ -387,6 +394,32 @@ const parseInfoBox = (
         key = "";
         break;
 
+      // Values as image titles
+      case Array.from(keysForImageTitlesMap.keys()).includes(type):
+        key = commaSeparatedValueMap.get(type);
+        if (!key) {
+          console.warn(`No key set for type ${type}`);
+          break;
+        }
+        record[key] = Array.from(
+          tr.querySelectorAll<HTMLAnchorElement>("td a") ?? []
+        ).map((a) => a?.title?.trim());
+        break;
+
+      case type === "animation":
+        imgSrc = tr.nextElementSibling?.querySelector("img")?.src;
+        record[type] = `${BASE_URL}${imgSrc}`;
+        imgSrc = "";
+        break;
+
+      case type === "sound effect":
+        // TODO: Find it
+        // record.soundEffect =
+        //   tr.nextElementSibling?.querySelector<HTMLAnchorElement>(
+        //     ".credits_box a"
+        //   )?.href;
+        break;
+
       // Re-keyed parsed-from-image values
       case type === "attack speed":
         let attackSpeed;
@@ -399,16 +432,13 @@ const parseInfoBox = (
         record.attackSpeed = attackSpeed;
         break;
 
-      // Values as image titles
-      case Array.from(keysForImageTitlesMap.keys()).includes(type):
-        key = commaSeparatedValueMap.get(type);
-        if (!key) {
-          console.warn(`No key set for type ${type}`);
-          break;
-        }
-        record[key] = Array.from(
-          tr.querySelectorAll<HTMLAnchorElement>("td a") ?? []
-        ).map((a) => a?.title?.trim());
+      case type === "runes":
+        const quantities = Array.from(tr.querySelectorAll("sup")).map(
+          (sup) => sup.textContent
+        );
+        record.runes = Array.from(
+          tr.querySelectorAll<HTMLAnchorElement>("td a")
+        ).map((a, i) => `${quantities[i]} ${a.title}`);
         break;
 
       // Log skip items
