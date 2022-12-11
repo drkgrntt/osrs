@@ -150,6 +150,9 @@ const stringKeys = [
   "quest",
   "room",
   "destroy",
+  "seed",
+  "plant",
+  "crop",
   "category",
   "turael",
   "spira",
@@ -166,8 +169,10 @@ const stringKeys = [
   "monster",
   "spellbook",
   "tier",
+  "yield",
   "owner",
   "specialty",
+  "patch",
 ];
 const dateKeys = ["removal", "released"];
 const yesNoKeys = [
@@ -176,8 +181,10 @@ const yesNoKeys = [
   "poisonous",
   "tradeable",
   "bankable",
+  "payment",
   "equipable",
   "stackable",
+  "regrow",
   "noteable",
   "flatpackable",
   "retaliation",
@@ -232,6 +239,7 @@ const stringValueMap = new Map([
   ["unlock hint", "unlockHint"],
   ["agility course", "agilityCourse"],
   ["quest series", "questSeries"],
+  ["growth time", "growthTime"],
   ["other", "otherRequirements"],
   ["furniture name", "furnitureName"],
   ["combat level", "combatLevel"],
@@ -254,6 +262,7 @@ const numberValueMap = new Map([
   ["npc id", "npcId"],
   ["object id", "objectId"],
   ["item id", "itemId"],
+  ["seeds per", "seedsPer"],
   ["icon id", "iconId"],
   ["icon item id", "iconItemId"],
   ["wikisync id", "wikisyncId"],
@@ -272,6 +281,9 @@ const numberValueMap = new Map([
   ["fishing xp", "fishingXp"],
   ["strength xp", "strengthXp"],
   ["push duration", "pushDuration"],
+  ["planting xp", "plantingXp"],
+  ["checking xp", "checkingXp"],
+  ["harvesting xp", "harvestingXp"],
 ]);
 const commaSeparatedValueMap = new Map([
   ["attack style", "attackStyle"],
