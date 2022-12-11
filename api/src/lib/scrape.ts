@@ -530,6 +530,9 @@ const parseCombatStats = (
             break;
           }
           record[`${key}OtherBonus`] = extractFloat(value);
+        } else if (title.includes(" slot")) {
+          const [slot] = title.trim().split(" ");
+          record.slot = slot;
         } else {
           console.warn("Missed other bonus:", title);
         }
