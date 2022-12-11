@@ -59,9 +59,7 @@ export const write = async (
   }
 };
 
-export const query = async (
-  cb: <Response extends unknown>(db: Db) => Promise<Response>
-) => {
+export const query = async <Record>(cb: (db: Db) => Promise<Record>) => {
   const client = new MongoClient(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
