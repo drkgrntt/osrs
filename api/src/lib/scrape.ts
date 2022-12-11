@@ -3,10 +3,7 @@ import { write } from "../database";
 import { extractFloat, fetch, immuneToBool, yesNoToBool } from "../utils";
 
 const BASE_URL = "https://oldschool.runescape.wiki";
-const RANDOM_PAGE = `${BASE_URL}/w/Special:Random/main`;
-// const ME_PAGE = `${BASE_URL}/w/Me`;
-// const MAN_PAGE = `${BASE_URL}/w/Man`;
-// const FIRE_ELEMENTAL_PAGE = `${BASE_URL}/w/Fire_elemental`;
+const RANDOM_PAGE = "Special:Random/main";
 
 const qs = <T extends Element>(dom: JSDOM, selector: string) =>
   dom.window.document.querySelector<T>(selector);
@@ -21,10 +18,15 @@ export const continuousScrape = () => {
   }, Math.random() * 60 * 1000 + 200);
 };
 
-export const scrape = async () => {
+export const scrape = async (pageName: string = RANDOM_PAGE) => {
   try {
-    const result = await (await fetch(RANDOM_PAGE)).text();
-    // const result = await (await fetch(MAN_PAGE)).text();
+    const url = `${BASE_URL}/w/${pageName}`;
+
+    const response = await fetch(url);
+    if (response.status !== 200) throw new Error("Not found.");
+
+    const result = await response.text();
+
     const dom = new JSDOM(result);
 
     const scrapedOn = new Date();
@@ -125,6 +127,8 @@ export const scrape = async () => {
 
     return record;
   } catch (error) {
+    console.error({ error });
+    if (error.message === "Not found.") error.status = 404;
     return { error };
   }
 };

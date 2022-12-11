@@ -8,6 +8,7 @@ const openApi = async () => {
   const app = express();
 
   app.get("/random", scrape);
+  app.get("/scrape/:slug", scrape);
 
   app.get("/search/:search", searchItems);
   app.get("/item/:slug", getItem);
