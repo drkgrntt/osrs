@@ -244,6 +244,7 @@ const skipKeys = (title?: string) => [
 
 const stringValueMap = new Map([
   ["respawn time", "respawnTime"],
+  ["wilderness level", "wildernessLevel"],
   ["reward currency", "rewardCurrency"],
   ["unlock hint", "unlockHint"],
   ["agility course", "agilityCourse"],
