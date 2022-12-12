@@ -155,6 +155,7 @@ const stringKeys = [
   "destroy",
   "seed",
   "plant",
+  "cost",
   "crop",
   "category",
   "turael",
@@ -274,6 +275,7 @@ const numberValueMap = new Map([
   ["object id", "objectId"],
   ["item id", "itemId"],
   ["seeds per", "seedsPer"],
+  ["construction level", "constructionLevel"],
   ["icon id", "iconId"],
   ["icon item id", "iconItemId"],
   ["wikisync id", "wikisyncId"],
@@ -290,6 +292,7 @@ const numberValueMap = new Map([
   ["casting speed", "castingSpeed"],
   ["base max hit", "baseMaxHit"],
   ["fishing xp", "fishingXp"],
+  ["xp bonus", "xpBonusPercent"],
   ["strength xp", "strengthXp"],
   ["push duration", "pushDuration"],
   ["planting xp", "plantingXp"],
@@ -442,7 +445,7 @@ const parseInfoBox = (
 
       // Values as image titles
       case Array.from(keysForImageTitlesMap.keys()).includes(type):
-        key = commaSeparatedValueMap.get(type);
+        key = keysForImageTitlesMap.get(type);
         if (!key) {
           console.warn(`No key set for type ${type}`);
           break;
