@@ -172,7 +172,10 @@ const parseH2Headers = (dom: JSDOM, record: Record<string, any>) => {
 
     let content = "";
     let elem = header.nextElementSibling;
+
+    let bomb = 1000;
     while (elem && elem.nodeName.toLowerCase() !== "h2") {
+      if (!--bomb) break;
       switch (elem.nodeName.toLowerCase()) {
         case "p":
           content += `${elem.textContent}\n`;
