@@ -237,6 +237,7 @@ const stringKeys = [
   "chaeldar",
   "amunition",
   "konar",
+  "album",
   "nieve",
   "bait",
   "duradel",
@@ -284,6 +285,7 @@ const commaSeparatedKeys = [
   "inhabitants",
   "hotspot",
   "shop",
+  "platforms",
   "products",
   "instruments",
 ];
