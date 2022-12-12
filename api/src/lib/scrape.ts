@@ -161,6 +161,8 @@ const stringKeys = [
   "spira",
   "krystilia",
   "mazchna",
+  "role",
+  "team",
   "vannaka",
   "chaeldar",
   "amunition",
@@ -177,7 +179,7 @@ const stringKeys = [
   "specialty",
   "patch",
 ];
-const dateKeys = ["removal", "released"];
+const dateKeys = ["removal", "released", "employed"];
 const yesNoKeys = [
   "members",
   "aggressive",
@@ -255,6 +257,7 @@ const stringValueMap = new Map([
   ["official difficulty", "officialDifficulty"],
   ["fishing spot", "fishingSpot"],
   ["current leader", "currentLeader"],
+  ["social media", "socialMedia"],
 ]);
 const yesNoMap = new Map([
   ["quest item", "questItem"],
@@ -298,7 +301,7 @@ const commaSeparatedValueMap = new Map([
   ["worn options", "wornOptions"],
   ["also called", "alsoCalled"],
   ["build type", "buildType"],
-  ["Lead developer(s)", "leadDevelopers"],
+  ["lead developer(s)", "leadDevelopers"],
 ]);
 const keysForImageTitlesMap = new Map([
   ["assigned by", "assignedBy"],
