@@ -232,6 +232,7 @@ const skipKeys = (title?: string) => [
   "grand exchange",
   "combat info",
   "immunities",
+  "slayer info",
   "combat stats",
   "defensive stats",
   "rock",
@@ -489,7 +490,7 @@ const parseInfoBox = (
 
       // Default
       default:
-        console.warn("Missed info type:", type);
+        console.warn("Missed info type:", type, ":", value);
         break;
     }
   });
