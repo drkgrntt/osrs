@@ -334,6 +334,7 @@ const stringValueMap = new Map([
   ["fishing spot", "fishingSpot"],
   ["current leader", "currentLeader"],
   ["social media", "socialMedia"],
+  ["uses item", "usesItem"],
 ]);
 const yesNoMap = new Map([
   ["quest item", "questItem"],
