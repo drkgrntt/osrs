@@ -292,6 +292,7 @@ const numberValueMap = new Map([
   ["prayer xp", "prayerXp"],
   ["construction xp", "constructionXp"],
   ["woodcutting xp", "woodcuttingXp"],
+  ["firemaking xp", "firemakingXp"],
   ["hunter xp", "hunterXp"],
   ["mining xp", "miningXp"],
   ["casting speed", "castingSpeed"],
