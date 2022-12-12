@@ -121,6 +121,8 @@ export const scrape = async (pageName: string = RANDOM_PAGE) => {
       ?.textContent?.toLowerCase()
       .includes("this is a dangerous activity");
 
+    parseH2Headers(dom, record);
+
     await write("item", [record], ["slug"]);
 
     console.info("Scraped: ", title);
@@ -131,6 +133,69 @@ export const scrape = async (pageName: string = RANDOM_PAGE) => {
     if (error.message === "Not found.") error.status = 404;
     return { error };
   }
+};
+
+const contentSectionKeyMap = new Map([
+  ["history", "history"],
+  ["getting there", "gettingThere"],
+  ["features", "features"],
+  ["item spawns", "itemSpawns"],
+  ["monsters", "monsters"],
+  ["trivia", "trivia"],
+
+  // Quests
+  ["walkthrough", "walkthrough"],
+  ["rewards", "rewards"],
+  ["required for completing", "requiredForCompleting"],
+]);
+
+/**
+ * Mutate the recore with the info found under the h2s
+ * @param dom JSDOM object we're looking through
+ * @param record The record we're populating
+ */
+const parseH2Headers = (dom: JSDOM, record: Record<string, any>) => {
+  const headers = qsa(dom, "h2");
+  headers.forEach((header) => {
+    const title = header
+      .querySelector(".mw-headline")
+      ?.textContent?.trim()
+      .toLowerCase();
+    if (!title || !Array.from(contentSectionKeyMap.keys()).includes(title))
+      return;
+
+    const key = contentSectionKeyMap.get(title);
+    if (!key) {
+      console.warn(`No key set for heading ${title}`);
+      return;
+    }
+
+    let content = "";
+    let elem = header.nextElementSibling;
+    while (elem && elem.nodeName.toLowerCase() !== "h2") {
+      switch (elem.nodeName.toLowerCase()) {
+        case "p":
+          content += `${elem.textContent}\n`;
+          break;
+        case "ul":
+          elem.querySelectorAll("li").forEach((li) => {
+            content += `- ${li.textContent}\n`;
+          });
+          break;
+        default:
+          console.warn(
+            `Potentially missed content for h2 ${title} in a <${elem.nodeName.toLowerCase()}>:`,
+            elem.textContent
+          );
+          break;
+      }
+      elem = elem.nextElementSibling;
+    }
+
+    if (content) {
+      record[key] = content;
+    }
+  });
 };
 
 const stringKeys = [
