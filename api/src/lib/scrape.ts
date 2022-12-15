@@ -142,6 +142,7 @@ const contentSectionKeyMap = new Map([
   ["item spawns", "itemSpawns"],
   ["monsters", "monsters"],
   ["trivia", "trivia"],
+  ["use", "use"],
 
   // Quests
   ["walkthrough", "walkthrough"],
@@ -187,9 +188,13 @@ const parseH2Headers = (dom: JSDOM, record: Record<string, any>) => {
           break;
         default:
           console.warn(
-            `Potentially missed content for h2 ${title} in a <${elem.nodeName.toLowerCase()}>:`,
-            elem.textContent
+            `Potentially missed content for h2 ${title} in a <${elem.nodeName.toLowerCase()}>: `
           );
+          if (elem.nodeName.toLowerCase() === "table") {
+            const tableTitle =
+              elem.querySelector(".navbox-title-name")?.textContent;
+            if (tableTitle) console.warn(tableTitle);
+          }
           break;
       }
       elem = elem.nextElementSibling;
