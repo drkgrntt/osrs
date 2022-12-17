@@ -2,16 +2,18 @@ import 'package:app/providers/item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../models/item.dart';
+
 class RandomScreen extends StatelessWidget {
   const RandomScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<ItemProvider>(context, listen: false).randomPage();
+    final item = Provider.of<ItemProvider>(context).item;
 
     return Scaffold(
-      appBar: _appBar('Penis'),
-      body: _body(),
+      appBar: _appBar(item.title),
+      body: _body(item),
     );
   }
 
@@ -21,7 +23,7 @@ class RandomScreen extends StatelessWidget {
     );
   }
 
-  Widget _body() {
-    return const Text('Penis');
+  Widget _body(Item item) {
+    return Text(item.description);
   }
 }

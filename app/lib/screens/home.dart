@@ -1,5 +1,8 @@
 import 'package:app/screens/random.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/item.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -20,6 +23,8 @@ class HomeScreen extends StatelessWidget {
       child: ElevatedButton(
         child: const Text('Random Ass Page'),
         onPressed: () {
+          Provider.of<ItemProvider>(context, listen: false).randomPage();
+
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (BuildContext context) {
