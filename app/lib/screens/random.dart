@@ -1,4 +1,5 @@
 import 'package:app/providers/item.dart';
+import 'package:app/widgets/item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,18 +13,10 @@ class RandomScreen extends StatelessWidget {
     final item = Provider.of<ItemProvider>(context).item;
 
     return Scaffold(
-      appBar: _appBar(item.title),
-      body: _body(item),
+      body: ItemDisplay(
+        item: item,
+        onRefresh: Provider.of<ItemProvider>(context, listen: false).randomPage,
+      ),
     );
-  }
-
-  AppBar _appBar(String title) {
-    return AppBar(
-      title: Text(title),
-    );
-  }
-
-  Widget _body(Item item) {
-    return Text(item.description);
   }
 }
