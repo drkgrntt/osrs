@@ -36,7 +36,7 @@ export const getItemsBySearch = async (search: string) => {
         .toArray();
 
       return [
-        ...matches.filter(({ score, ...fields }) => ({ ...fields })),
+        ...matches.map(({ score, ...fields }) => ({ ...fields })),
         ...closeEnough,
       ].filter((_, i) => i < 20);
     });
