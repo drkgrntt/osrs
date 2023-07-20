@@ -32,7 +32,7 @@ export const scrape = async (pageName: string = RANDOM_PAGE) => {
     const scrapedOn = new Date();
 
     // Title
-    const title = qs(dom, "#firstHeading")?.innerHTML;
+    const title = qs(dom, "#firstHeading")?.textContent as string;
 
     // Slug
     const slug = title?.toLowerCase().replace(/\ /g, "_");
