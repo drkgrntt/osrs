@@ -1,6 +1,8 @@
 package models
 
 import (
+	"math"
+	"reflect"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -11,9 +13,9 @@ type Item struct {
 	Title        string             `json:"title,omitempty"`
 	Slug         string             `json:"slug,omitempty"`
 	Description  string             `json:"description,omitempty"`
-	ScrapedOn    time.Time          `json:"scrapedOn,omitempty"`
+	ScrapedOn    *time.Time         `json:"scrapedOn,omitempty"`
 	MainImage    string             `json:"mainImage,omitempty"`
-	TextBoxImage string             `json:"TextBoxImage,omitempty"`
+	TextBoxImage string             `json:"textBoxImage,omitempty"`
 
 	// Info Box
 	// Strings
@@ -175,4 +177,20 @@ type Item struct {
 	Icon        string `json:"icon,omitempty"`
 	MinimapIcon string `json:"minimapIcon,omitempty"`
 	MapIcon     string `json:"mapIcon,omitempty"`
+}
+
+func (item *Item) Convert() {
+	t := reflect.TypeOf(*item)
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		fieldType := field.Type.String()
+
+		if fieldType == "float64" {
+			value := reflect.ValueOf(item).Elem().FieldByName(field.Name).Float()
+
+			if math.IsNaN(value) {
+				reflect.ValueOf(item).Elem().FieldByName(field.Name).SetFloat(0)
+			}
+		}
+	}
 }
