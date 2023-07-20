@@ -12,10 +12,15 @@ const qsa = <T extends Element>(dom: JSDOM, selector: string) =>
   dom.window.document.querySelectorAll<T>(selector);
 
 export const continuousScrape = () => {
-  setTimeout(async () => {
-    await scrape();
+  try {
+    setTimeout(async () => {
+      await scrape();
+      continuousScrape();
+    }, Math.random() * 60 * 1000 + 200);
+  } catch (err) {
+    console.error(err);
     continuousScrape();
-  }, Math.random() * 60 * 1000 + 200);
+  }
 };
 
 export const scrape = async (pageName: string = RANDOM_PAGE) => {
